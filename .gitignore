@@ -1,7 +1,7 @@
 .vagrant
 
 # ignore roles, fetch from ansible-galaxy
-roles/*
+roles/*/
 # Bundler
 bin/*
 .bundle/*
