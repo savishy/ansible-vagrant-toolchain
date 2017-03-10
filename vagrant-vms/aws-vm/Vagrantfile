@@ -1,0 +1,32 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+require 'vagrant-aws'
+
+Vagrant.configure("2") do |config|
+  # base box to use
+	config.vm.box = "aws-dummy"
+  
+  # virtualbox customizaations and settings
+  config.vm.provider :aws do |aws, override|
+		aws.access_key_id = "AKIAJTHTUC2CWWQFP6ZQ"
+    aws.secret_access_key = "Ez90R6v5E0Q/JgRsMp+48Vb67NliedfQoIxr/IWE"
+    aws.ami = "ami-c3f12ea0"
+    aws.region = "ap-southeast-1"
+    aws.keypair_name = "vagrant-keypair" 
+    aws.security_groups = ["vagrant-vms-security-group"]
+		override.ssh.username = "ubuntu"
+    override.ssh.private_key_path = "/Users/anadi/.ssh/vagrant-keypair.pem"
+  end
+
+  # provisioning
+  #config.vm.provision "shell", inline: <<-SHELL
+  #  apt-get update
+  #  apt-get install software-properties-common -y > /dev/null 2>&1
+  #  apt-add-repository ppa:ansible/ansible
+  #  apt-get install ansible -y > /dev/null 2>&1
+  #SHELL
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "../../playbook.yml"
+		ansible.verbose = "vvv"
+  end
+end

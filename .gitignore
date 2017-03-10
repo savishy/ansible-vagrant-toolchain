@@ -1,0 +1,14 @@
+.vagrant
+
+# ignore roles, fetch from ansible-galaxy
+roles/*
+# Bundler
+bin/*
+.bundle/*
+
+/jenkins
+
+#Archives
+*.war
+
+pipeline/containers/*
