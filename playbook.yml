@@ -9,3 +9,7 @@
     java_remove_download: true
     java_set_javahome: false
     java_install_jce: false
+    # execute all commands as root
+    ansible_become_user: root
+    ansible_become_method: sudo
+    ansible_become: true
