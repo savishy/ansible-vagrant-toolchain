@@ -1,32 +1,40 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-require 'vagrant-aws'
+# Require vagrant-aws plugin to continue
+unless Vagrant.has_plugin?("vagrant-aws")
+	raise 'vagrant-aws plugin is not installed!'
+end
 
 Vagrant.configure("2") do |config|
-  # base box to use
-	config.vm.box = "aws-dummy"
-  
-  # virtualbox customizaations and settings
-  config.vm.provider :aws do |aws, override|
-		aws.access_key_id = ""
-    aws.secret_access_key = ""
-    aws.ami = "ami-c3f12ea0"
-    aws.region = "ap-southeast-1"
-    aws.keypair_name = "vagrant-keypair" 
-    aws.security_groups = ["vagrant-vms-security-group"]
-		override.ssh.username = "ubuntu"
-    override.ssh.private_key_path = "/Users/anadi/.ssh/vagrant-keypair.pem"
-  end
+	# base box to use for aws
+	config.vm.box = "dummy"
+	config.vm.box_url = "https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box"
 
-  # provisioning
-  #config.vm.provision "shell", inline: <<-SHELL
-  #  apt-get update
-  #  apt-get install software-properties-common -y > /dev/null 2>&1
-  #  apt-add-repository ppa:ansible/ansible
-  #  apt-get install ansible -y > /dev/null 2>&1
-  #SHELL
-  config.vm.provision "ansible" do |ansible|
-    ansible.playbook = "../../playbook.yml"
+	# virtualbox customizaations and settings
+	config.vm.provider :aws do |aws, override|
+		aws.access_key_id = ENV['AWS_ACCESS_KEY']
+		aws.secret_access_key = ENV['AWS_SECRET_KEY']
+		aws.ami = "ami-5f3d4d30" # ubuntu 16.04 for ap-south-1
+		aws.region = ENV['AWS_DEFAULT_REGION']
+		aws.instance_type = "t2.micro"
+		aws.keypair_name = ENV['AWS_KEYPAIR_NAME']
+		aws.security_groups = ENV['AWS_SECURITYGROUP']
+		override.ssh.username = "ubuntu"
+		override.ssh.private_key_path = ENV['AWS_KEYPAIR_LOC']
+	end
+
+	# provisioning
+	config.vm.provision "shell", inline: <<-SHELL
+		apt-get update -qqy
+		apt-get install software-properties-common -y > /dev/null 2>&1
+		apt-add-repository ppa:ansible/ansible
+		apt-get install ansible -y > /dev/null 2>&1
+	SHELL
+
+	config.vm.provision "ansible" do |ansible|
+		ansible.galaxy_role_file = "../../requirements.yml"
+		ansible.galaxy_roles_path = "../../roles/"
+		ansible.playbook = "../../playbook.yml"
 		ansible.verbose = "vvv"
-  end
-end
+	end
+	end
